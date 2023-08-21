@@ -8,6 +8,7 @@ import FadeIn from "@/components/animations/FadeIn";
 import Subscribe from "@/components/shared/Subscribe";
 import Footer from "@/components/shared/Footer";
 import { getCollectionProducts } from "@/lib/shopify";
+import { Product } from "@/lib/shopify/types";
 
 export const runtime = "edge";
 
@@ -49,11 +50,10 @@ const callouts = [
 ];
 
 export default async function Home() {
-  const homepageItems = await getCollectionProducts({
-    collection: "hidden-homepage-featured-items",
+  const featuredProducts: Product[] = await getCollectionProducts({
+    collection: "featured",
   });
 
-  console.log(homepageItems);
   return (
     <>
       <StoreBanner />
@@ -108,32 +108,75 @@ export default async function Home() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Feateard Collections
+                  featured Collections
                 </h2>
 
                 <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
-                  {callouts.map((callout) => (
-                    <div key={callout.name} className="group relative">
+                  {featuredProducts.map((item) => (
+                    <div key={item.id} className="group relative">
                       <div className="relative h-80 w-full overflow-hidden rounded-lg bg-white sm:aspect-h-1 sm:aspect-w-2 lg:aspect-h-1 lg:aspect-w-1 group-hover:opacity-75 sm:h-64">
                         <img
-                          src={callout.imageSrc}
-                          alt={callout.imageAlt}
+                          src={item.images[0].url}
+                          alt={item.images[0].altText}
                           className="h-full w-full object-cover object-center"
                         />
                       </div>
-                      <h3 className="mt-6 text-sm text-gray-500">
-                        <a href={callout.href}>
+                      <h3 className="text-base font-semibold m-4  text-gray-900">
+                        <Link href={`/product/${item?.handle}`}>
                           <span className="absolute inset-0" />
-                          {callout.name}
-                        </a>
+                          {item.title}
+                        </Link>
                       </h3>
-                      <p className="text-base font-semibold text-gray-900">
-                        {callout.description}
-                      </p>
                     </div>
                   ))}
                 </div>
               </div>
+            </div>
+          </section>
+        </FadeIn>
+
+        <FadeIn>
+          <section
+            id="categories"
+            aria-labelledby="categories-heading"
+            className="space-y-6 py-6 md:pt-10 lg:pt-24"
+          >
+            <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+              <h2 className="text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">
+                BEST SELLERS
+              </h2>
+              <Balance className="max-w-[46rem] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+                Explore our best sellers products to find the best products for
+                you
+              </Balance>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {productCategories.map((category) => (
+                <Link
+                  aria-label={`Go to ${category.title}`}
+                  key={category.title}
+                  href={`/categories/${category.title}`}
+                >
+                  <div className="group relative overflow-hidden rounded-md">
+                    <AspectRatio ratio={4 / 5}>
+                      <div className="absolute inset-0 z-10 bg-black/60 transition-colors group-hover:bg-black/70" />
+                      <Image
+                        src={category.image}
+                        alt={category.title}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        fill
+                        className="object-cover transition-transform group-hover:scale-105"
+                        priority
+                      />
+                    </AspectRatio>
+                    <div className="absolute inset-0 z-20 flex items-center justify-center">
+                      <h3 className="text-3xl font-medium capitalize text-slate-100 md:text-2xl">
+                        {category.title}
+                      </h3>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
           </section>
         </FadeIn>

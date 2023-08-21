@@ -19,7 +19,7 @@ const Providers: FC<LayoutProps> = ({ children }) => {
           {children}
           <Next13ProgressBar
             height="2px"
-            color="#ffff01"
+            color="#000"
             options={{ showSpinner: false }}
             showOnShallow
           />

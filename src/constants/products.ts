@@ -2,7 +2,7 @@ export const productCategories = [
   {
     title: "men",
     image:
-      "https://shella-demo.myshopify.com/cdn/shop/products/1931456401_1_1_1_9d703194-a8a4-418f-b42d-b507bae47cb9_270x.progressive.jpg?v=1618251232",
+      "https://cdn.shopify.com/s/files/1/2185/2813/products/M1205R_01_b1_s3_a1_1_m93_1600x.jpg?v=1657222064",
     subcategories: [
       {
         title: "Decks",
@@ -51,7 +51,7 @@ export const productCategories = [
   {
     title: "clothing",
     image:
-      "https://shella-demo.myshopify.com/cdn/shop/products/1935457407_2_1_1_685e9cce-31c1-4cf3-800e-267f92c3cede_270x.progressive.jpg?v=1547913669",
+      "https://cdn.shopify.com/s/files/1/2185/2813/products/A0225U_00_b1_a3_m100_288x.jpg?v=1657736930",
     subcategories: [
       {
         title: "T-shirts",
@@ -83,7 +83,7 @@ export const productCategories = [
   {
     title: "women",
     image:
-      "https://shella-demo.myshopify.com/cdn/shop/products/2121900600_1_1_1_71822fdd-d42c-4fd2-8a9e-0c48d67a8629_270x.progressive.jpg?v=1542545929",
+      "https://cdn.shopify.com/s/files/1/2185/2813/files/W3699R_02910_b1_s1_a3_1_m89_288x.jpg?v=1687478180",
     subcategories: [
       {
         title: "Skate Tools",
@@ -129,7 +129,7 @@ export const productCategories = [
   {
     title: "accessories",
     image:
-      "https://shella-demo.myshopify.com/cdn/shop/products/2121900600_1_1_1_71822fdd-d42c-4fd2-8a9e-0c48d67a8629_270x.progressive.jpg?v=1542545929",
+      "https://cdn.shopify.com/s/files/1/2185/2813/products/A0291U_01_b1_a1_288x.jpg?v=1659044186",
     subcategories: [
       {
         title: "Skate Tools",
