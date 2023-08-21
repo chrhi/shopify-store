@@ -1,4 +1,12 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+    domains: [
+      "uploadthing.com",
+      "shella-demo.myshopify.com",
+      "cdn.shopify.com",
+    ],
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
