@@ -22,7 +22,7 @@ export function Navigations() {
       <NavigationMenuList>
         {HeaderData.map((item) => {
           return (
-            <NavigationMenuItem>
+            <NavigationMenuItem key={item.name}>
               <NavigationMenuTrigger>{item.name}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[700px] md:grid-cols-3 lg:w-[900px] ">

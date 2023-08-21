@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 
 import { formatPrice } from "@/lib/utils";
@@ -16,34 +18,43 @@ import {
 import { UpdateCart } from "@/components/cart/update-cart";
 import { Icons } from "@/components/shared/icons";
 
-export async function CartSheet() {
-  const cartLineItems: CartLineItem[] = [
-    {
-      category: "hohsg",
-      id: "kjgg",
-      images: "/image",
-      inventory: "kjhgf",
-      name: "kjhgty",
-      price: 234,
-      storeId: "kjhg",
-      storeName: "kjhgg",
-      subcategory: "kjhgyeee",
-      quantity: 5,
-    },
-  ];
+import Price from "@/components/shared/price";
+import { DEFAULT_OPTION } from "@/lib/constants";
+import type { Cart } from "@/lib/shopify/types";
+import { createUrl } from "@/lib/utils";
 
-  const itemCount = cartLineItems.reduce(
-    (total, item) => total + Number(item.quantity),
-    0
-  );
+import Link from "next/link";
+import { Fragment, useEffect, useRef, useState } from "react";
 
-  const cartTotal = cartLineItems.reduce(
-    (total, item) => total + Number(item.quantity) * Number(item.price),
-    0
-  );
+import DeleteItemButton from "./delete-item-button";
+import EditItemQuantityButton from "./edit-item-quantity-button";
+import { ShoppingCartIcon } from "lucide-react";
+
+type MerchandiseSearchParams = {
+  [key: string]: string;
+};
+
+export async function CartSheet({ cart }: { cart: Cart | undefined }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const quantityRef = useRef(cart?.totalQuantity);
+  const openCart = () => setIsOpen(true);
+  const closeCart = () => setIsOpen(false);
+
+  useEffect(() => {
+    // Open cart modal when quantity changes.
+    if (cart?.totalQuantity !== quantityRef.current) {
+      // But only if it's not already open (quantity also changes when editing items in cart).
+      if (!isOpen) {
+        setIsOpen(true);
+      }
+
+      // Always update the quantity reference
+      quantityRef.current = cart?.totalQuantity;
+    }
+  }, [isOpen, cart?.totalQuantity, quantityRef]);
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={(val) => setIsOpen(val.valueOf())}>
       <SheetTrigger asChild>
         <Button
           aria-label="Open cart"
@@ -51,12 +62,12 @@ export async function CartSheet() {
           size="icon"
           className="relative"
         >
-          {itemCount > 0 && (
+          {cart?.totalQuantity && cart?.totalQuantity > 0 && (
             <Badge
               variant="secondary"
               className="absolute -right-2 -top-2 h-6 w-6 rounded-full p-2"
             >
-              {itemCount}
+              {cart?.totalQuantity}
             </Badge>
           )}
           <Icons.cart className="h-4 w-4" aria-hidden="true" />
@@ -64,102 +75,126 @@ export async function CartSheet() {
       </SheetTrigger>
       <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
         <SheetHeader className="px-1">
-          <SheetTitle>Cart {itemCount > 0 && `(${itemCount})`}</SheetTitle>
+          <SheetTitle>
+            Cart{" "}
+            {cart?.totalQuantity &&
+              cart?.totalQuantity > 0 &&
+              `(${cart?.totalQuantity})`}
+          </SheetTitle>
         </SheetHeader>
         <Separator />
-        {itemCount > 0 ? (
-          <>
-            <div className="flex flex-1 flex-col gap-5 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="flex flex-col gap-5 pr-6">
-                  {cartLineItems.map((item) => (
-                    <div key={item.id} className="space-y-3">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative h-16 w-16 overflow-hidden rounded">
-                          {item?.images?.length ? (
-                            <Image
-                              src={
-                                item.images[0]?.url ??
-                                "/images/product-placeholder.webp"
-                              }
-                              alt={item.images[0]?.name ?? item.name}
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              fill
-                              className="absolute object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="flex h-full items-center justify-center bg-secondary">
-                              <Icons.placeholder
-                                className="h-4 w-4 text-muted-foreground"
-                                aria-hidden="true"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-1 flex-col gap-1 self-start text-sm">
-                          <span className="line-clamp-1">{item.name}</span>
-                          <span className="line-clamp-1 text-muted-foreground">
-                            {formatPrice(item.price)} x {item.quantity} ={" "}
-                            {formatPrice(
-                              (
-                                Number(item.price) * Number(item.quantity)
-                              ).toFixed(2)
-                            )}
-                          </span>
-                          <span className="line-clamp-1 text-xs capitalize text-muted-foreground">
-                            {`${item.category} ${
-                              item.subcategory ? `/ ${item.subcategory}` : ""
-                            }`}
-                          </span>
-                        </div>
-                        <UpdateCart cartLineItem={item} />
-                      </div>
-                      <Separator />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-            <div className="grid gap-1.5 pr-6 text-sm">
-              <Separator className="mb-2" />
-              <div className="flex">
-                <span className="flex-1">Subtotal</span>
-                <span>{formatPrice(cartTotal.toFixed(2))}</span>
-              </div>
-              <div className="flex">
-                <span className="flex-1">Shipping</span>
-                <span>Free</span>
-              </div>
-              <div className="flex">
-                <span className="flex-1">Taxes</span>
-                <span>Calculated at checkout</span>
-              </div>
-              <Separator className="mt-2" />
-              <div className="flex">
-                <span className="flex-1">Total</span>
-                <span>{formatPrice(cartTotal.toFixed(2))}</span>
-              </div>
-              <SheetFooter className="mt-1.5">
-                <Button
-                  aria-label="Proceed to checkout"
-                  size="sm"
-                  className="w-full"
-                >
-                  Proceed to Checkout
-                </Button>
-              </SheetFooter>
-            </div>
-          </>
+
+        {!cart || cart.lines.length === 0 ? (
+          <div className="mt-20 flex w-full flex-col items-center justify-center overflow-hidden">
+            <ShoppingCartIcon className="h-16" />
+            <p className="mt-6 text-center text-2xl font-bold">
+              Your cart is empty.
+            </p>
+          </div>
         ) : (
-          <div className="flex h-full flex-col items-center justify-center space-y-2">
-            <Icons.cart
-              className="h-12 w-12 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <span className="text-lg font-medium text-muted-foreground">
-              Your cart is empty
-            </span>
+          <div className="flex h-full flex-col justify-between overflow-hidden p-1">
+            <ul className="flex-grow overflow-auto py-4">
+              {cart.lines.map((item, i) => {
+                const merchandiseSearchParams = {} as MerchandiseSearchParams;
+
+                item.merchandise.selectedOptions.forEach(({ name, value }) => {
+                  if (value !== DEFAULT_OPTION) {
+                    merchandiseSearchParams[name.toLowerCase()] = value;
+                  }
+                });
+
+                const merchandiseUrl = createUrl(
+                  `/product/${item.merchandise.product.handle}`,
+                  new URLSearchParams(merchandiseSearchParams)
+                );
+
+                return (
+                  <li
+                    key={i}
+                    className="flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700"
+                  >
+                    <div className="relative flex w-full flex-row justify-between px-1 py-4">
+                      <div className="absolute z-40 -mt-2 ml-[55px]">
+                        <DeleteItemButton item={item} />
+                      </div>
+                      <Link
+                        href={merchandiseUrl}
+                        onClick={closeCart}
+                        className="z-30 flex flex-row space-x-4"
+                      >
+                        <div className="relative h-16 w-16 cursor-pointer overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
+                          <Image
+                            className="h-full w-full object-cover"
+                            width={64}
+                            height={64}
+                            alt={
+                              item.merchandise.product.featuredImage.altText ||
+                              item.merchandise.product.title
+                            }
+                            src={item.merchandise.product.featuredImage.url}
+                          />
+                        </div>
+
+                        <div className="flex flex-1 flex-col text-base">
+                          <span className="leading-tight">
+                            {item.merchandise.product.title}
+                          </span>
+                          {item.merchandise.title !== DEFAULT_OPTION ? (
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                              {item.merchandise.title}
+                            </p>
+                          ) : null}
+                        </div>
+                      </Link>
+                      <div className="flex h-16 flex-col justify-between">
+                        <Price
+                          className="flex justify-end space-y-2 text-right text-sm"
+                          amount={item.cost.totalAmount.amount}
+                          currencyCode={item.cost.totalAmount.currencyCode}
+                        />
+                        <div className="ml-auto flex h-9 flex-row items-center rounded-full border border-neutral-200 dark:border-neutral-700">
+                          <EditItemQuantityButton item={item} type="minus" />
+                          <p className="w-6 text-center">
+                            <span className="w-full text-sm">
+                              {item.quantity}
+                            </span>
+                          </p>
+                          <EditItemQuantityButton item={item} type="plus" />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="py-4 text-sm text-neutral-500 dark:text-neutral-400">
+              <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 dark:border-neutral-700">
+                <p>Taxes</p>
+                <Price
+                  className="text-right text-base text-black dark:text-white"
+                  amount={cart.cost.totalTaxAmount.amount}
+                  currencyCode={cart.cost.totalTaxAmount.currencyCode}
+                />
+              </div>
+              <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
+                <p>Shipping</p>
+                <p className="text-right">Calculated at checkout</p>
+              </div>
+              <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
+                <p>Total</p>
+                <Price
+                  className="text-right text-base text-black dark:text-white"
+                  amount={cart.cost.totalAmount.amount}
+                  currencyCode={cart.cost.totalAmount.currencyCode}
+                />
+              </div>
+            </div>
+            <a
+              href={cart.checkoutUrl}
+              className="block w-full rounded-full bg-blue-600 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
+            >
+              Proceed to Checkout
+            </a>
           </div>
         )}
       </SheetContent>

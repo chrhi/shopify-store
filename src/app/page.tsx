@@ -1,4 +1,3 @@
-import { Header } from "@/components/layout/Header";
 import StoreBanner from "@/components/shared/StoreBanner";
 import Balance from "react-wrap-balancer";
 import Image from "next/image";
@@ -8,6 +7,17 @@ import { productCategories } from "@/constants/products";
 import FadeIn from "@/components/animations/FadeIn";
 import Subscribe from "@/components/shared/Subscribe";
 import Footer from "@/components/shared/Footer";
+import { getCollectionProducts } from "@/lib/shopify";
+
+export const runtime = "edge";
+
+export const metadata = {
+  description:
+    "High-performance ecommerce store built with Next.js, Vercel, and Shopify.",
+  openGraph: {
+    type: "website",
+  },
+};
 
 const callouts = [
   {
@@ -38,10 +48,16 @@ const callouts = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const homepageItems = await getCollectionProducts({
+    collection: "hidden-homepage-featured-items",
+  });
+
+  console.log(homepageItems);
   return (
     <>
       <StoreBanner />
+
       <div className="container w-full h-fit min-h-screen">
         <FadeIn>
           <section
@@ -92,7 +108,7 @@ export default function Home() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-2xl py-16 sm:py-24 lg:max-w-none lg:py-32">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Collections
+                  Feateard Collections
                 </h2>
 
                 <div className="mt-6 space-y-12 lg:grid lg:grid-cols-3 lg:gap-x-6 lg:space-y-0">
@@ -121,12 +137,14 @@ export default function Home() {
             </div>
           </section>
         </FadeIn>
+
         <FadeIn>
           <section className="px-4 sm:py-32 py-16 w-full">
             <Subscribe />
           </section>
         </FadeIn>
       </div>
+
       <FadeIn>
         <section className=" w-full bg-black px-8 pt-4 pb-8">
           <Footer />
