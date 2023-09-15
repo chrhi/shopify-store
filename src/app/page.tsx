@@ -10,8 +10,6 @@ import Footer from "@/components/shared/Footer";
 import { getCollectionProducts } from "@/lib/shopify";
 import { Product } from "@/lib/shopify/types";
 
-export const runtime = "edge";
-
 export const metadata = {
   description:
     "High-performance ecommerce store built with Next.js, Vercel, and Shopify.",
